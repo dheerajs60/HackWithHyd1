@@ -10,13 +10,13 @@ export async function handler(event) {
       };
     }
 
-    // Parse the incoming body (base64 encoded by Netlify when using binary)
+    // Netlify encodes file uploads in base64
     const body = Buffer.from(event.body, "base64");
 
-    // Create form-data and append file buffer
+    // Create form-data for Pinata
     const formData = new FormData();
     formData.append("file", body, {
-      filename: "upload.png", // you can also pass through event.queryStringParameters if you want dynamic filename
+      filename: "upload.bin", // you can update filename dynamically if needed
       contentType: "application/octet-stream",
     });
 
