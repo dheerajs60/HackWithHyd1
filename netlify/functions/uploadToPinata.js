@@ -10,21 +10,19 @@ export async function handler(event) {
       };
     }
 
-    // Netlify encodes file uploads in base64
+    // decode base64 body (Netlify passes it like that)
     const body = Buffer.from(event.body, "base64");
 
-    // Create form-data for Pinata
     const formData = new FormData();
     formData.append("file", body, {
-      filename: "upload.bin", // you can update filename dynamically if needed
+      filename: "upload.bin",
       contentType: "application/octet-stream",
     });
 
-    // Send to Pinata
     const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.PINATA_JWT}`,
+        Authorization: `Bearer ${process.env.PINATA_JWT}`, // 🔒 secure usage
       },
       body: formData,
     });
