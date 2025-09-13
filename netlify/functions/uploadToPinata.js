@@ -3,7 +3,6 @@ import FormData from "form-data";
 
 export async function handler(event) {
   try {
-    // Ensure request is POST
     if (event.httpMethod !== "POST") {
       return {
         statusCode: 405,
@@ -11,14 +10,23 @@ export async function handler(event) {
       };
     }
 
-    // Netlify functions get raw body as a string
-    // So we just forward it directly to Pinata with proper headers
+    // Parse the incoming body (base64 encoded by Netlify when using binary)
+    const body = Buffer.from(event.body, "base64");
+
+    // Create form-data and append file buffer
+    const formData = new FormData();
+    formData.append("file", body, {
+      filename: "upload.png", // you can also pass through event.queryStringParameters if you want dynamic filename
+      contentType: "application/octet-stream",
+    });
+
+    // Send to Pinata
     const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${process.env.PINATA_JWT}`,
       },
-      body: event.body, // raw multipart form data
+      body: formData,
     });
 
     const data = await response.json();
